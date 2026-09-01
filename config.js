@@ -7,10 +7,10 @@ window.SAIL_CONFIG = {
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdGxldXZ1bXdyb2t2b3ZrcXhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNDgyOTAsImV4cCI6MjEwMzgyNDI5MH0.Qx9_ewfzdd1-l5EQfFiUdkKzuUvzLINFQa4jQ-Zq6gA',
 
   // 展示会ごとに変える。過去の分と混ざらないようにするための識別子
-  CAMPAIGN: 'expo-2026',
+  CAMPAIGN: 'tohoku-2026',
 
   // ---- 表示する文言 ----------------------------------------
-  EXPO_NAME: '＿＿＿＿展',              // ★展示会の正式名称に差し替え
+  EXPO_NAME: 'オートアフターマーケット東北2026',
   BOOTH: 'セイルシステム ブース',
   LEAD: '集客も、診断も、部品仕入れも。',
 
@@ -40,10 +40,10 @@ window.SAIL_CONFIG = {
     { title: '仕組みの導入',       note: 'Web集客・050通話可視化・技術／部品サポートをまとめて開始。' },
   ],
 
-  EXPIRES: '＿＿＿＿まで',              // ★有効期限を決めて差し替え
+  EXPIRES: '2026年10月13日（火）まで',
 
   // ticket.html の公開URL。管理画面がメール文面のリンクを組み立てるのに使います
-  TICKET_URL: 'https://xxxx.github.io/sail-ticket/ticket.html',
+  TICKET_URL: 'https://pattosystem.github.io/Online-ticket/ticket.html',
 
   // 主催2社
   ORGS: [
