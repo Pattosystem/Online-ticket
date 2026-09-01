@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>特典チケット｜セイルシステム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16232F; --ink-soft:#5D6E7B; --line:#C9CEC9;
+    --field:#F2F3F1; --paper:#FFFFFF;
+    --tag:#E8B33A; --signal:#C8321E; --live:#1C6E4A;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:2rem 1.25rem 4rem;background:var(--field);color:var(--ink);
+    font-family:"Zen Kaku Gothic New",system-ui,sans-serif;line-height:1.75;
+  }
+  .wrap{max-width:26rem;margin:0 auto}
+
+  /* ---- 整備タグ ---- */
+  .tag{
+    background:var(--paper);border:1px solid var(--line);
+    position:relative;overflow:hidden;
+  }
+  .tag__head{background:var(--ink);color:#fff;padding:1.5rem 1.5rem 1.25rem;position:relative}
+  .tag__head::after{content:"";position:absolute;inset:auto 0 0 0;height:5px;background:var(--tag)}
+  .tag__expo{font-size:.75rem;color:#9FB2BF;margin:0 0 .4rem}
+  .tag__title{font-size:1.375rem;font-weight:900;margin:0;line-height:1.4}
+  .tag__body{padding:1.5rem}
+
+  .holder{font-size:1.0625rem;font-weight:700;margin:0}
+  .holder small{display:block;font-size:.8125rem;font-weight:400;color:var(--ink-soft);margin-top:.15rem}
+
+  .rows{margin:1.5rem 0 0;border-top:1px solid var(--field)}
+  .row{display:flex;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--field);font-size:.9375rem}
+  .row dt{flex:0 0 5.5rem;margin:0;color:var(--ink-soft);font-size:.875rem}
+  .row dd{margin:0;flex:1;font-weight:500}
+  .row dd ul{margin:0;padding-left:1.1rem}
+
+  .code{
+    margin:1.5rem 0 0;background:var(--field);border:1px dashed var(--line);
+    padding:.875rem 1rem;text-align:center;
+  }
+  .code span{display:block;font-size:.75rem;color:var(--ink-soft);margin-bottom:.25rem}
+  .code strong{font-family:"Roboto Mono",monospace;font-size:1.25rem;font-weight:700;letter-spacing:.06em}
+
+  /* ---- 特典 ---- */
+  .gift{
+    background:#FDF6E3;border:1px solid var(--tag);border-top-width:4px;
+    padding:.875rem 1rem;margin-top:.75rem;
+  }
+  .gift .g-tag{
+    display:block;font-family:"Roboto Mono",monospace;font-size:.75rem;
+    font-weight:700;color:#8A6A12;margin-bottom:.25rem;letter-spacing:.08em;
+  }
+  .gift .g-title{display:block;font-size:1.0625rem;font-weight:700;line-height:1.5}
+  .gift .g-note{display:block;font-size:.8125rem;color:var(--ink-soft);margin-top:.4rem}
+
+  /* ---- 流れ（実際に順番があるので番号を振る） ---- */
+  .flow{margin-top:1.5rem;background:var(--paper);border:1px solid var(--line);padding:1.25rem 1.5rem}
+  .flow h2{margin:0 0 .75rem;font-size:.9375rem;color:var(--ink-soft)}
+  .flow ol{margin:0;padding:0;list-style:none;counter-reset:s}
+  .flow li{
+    counter-increment:s;padding:.7rem 0 .7rem 2.25rem;position:relative;
+    border-top:1px solid var(--field);font-size:.9375rem;
+  }
+  .flow li:first-child{border-top:none}
+  .flow li::before{
+    content:counter(s);position:absolute;left:0;top:.85rem;
+    width:1.5rem;height:1.5rem;background:var(--ink);color:#fff;
+    font-family:"Roboto Mono",monospace;font-size:.8125rem;font-weight:700;
+    display:grid;place-items:center;
+  }
+  .flow b{display:block;font-weight:700}
+  .flow small{display:block;font-size:.8125rem;color:var(--ink-soft);margin-top:.15rem;line-height:1.6}
+
+  /* ---- 状態 ---- */
+  .state{
+    margin:0;padding:.875rem 1.5rem;font-size:.9375rem;font-weight:700;
+    display:flex;align-items:center;gap:.6rem;
+  }
+  .state.live{background:#E6F1EB;color:var(--live)}
+  .state.spent{background:#FBEBE8;color:var(--signal)}
+  .state .dot{width:.6rem;height:.6rem;border-radius:50%;background:currentColor;flex:none}
+
+  /* ---- 使用済みスタンプ ---- */
+  .stamp{
+    position:absolute;top:52%;left:50%;
+    transform:translate(-50%,-50%) rotate(-11deg);
+    border:5px solid var(--signal);color:var(--signal);
+    padding:.4rem 1.5rem;font-size:1.875rem;font-weight:900;letter-spacing:.15em;
+    opacity:.82;pointer-events:none;white-space:nowrap;border-radius:4px;
+  }
+  .spent-tag .tag__body{opacity:.42}
+
+  /* ---- 申込 ---- */
+  .act{margin-top:1.5rem}
+  textarea{
+    width:100%;font:inherit;font-size:1rem;padding:.75rem .875rem;min-height:6rem;
+    border:1px solid var(--line);border-radius:2px;background:var(--paper);color:var(--ink);resize:vertical;
+  }
+  textarea:focus{outline:3px solid var(--tag);outline-offset:1px;border-color:var(--ink)}
+  .lbl{display:block;font-size:.875rem;font-weight:700;margin:0 0 .4rem}
+  button{
+    width:100%;font:inherit;font-size:1.0625rem;font-weight:700;padding:1rem;
+    border:none;border-radius:2px;background:var(--ink);color:#fff;cursor:pointer;margin-top:1rem;
+  }
+  button.ghost{background:none;color:var(--ink-soft);border:1px solid var(--line);font-size:.9375rem;padding:.75rem}
+  button:hover:not(:disabled){background:#0E1922;color:#fff}
+  button.ghost:hover{background:var(--field);color:var(--ink)}
+  button:disabled{opacity:.45;cursor:progress}
+  button:focus-visible{outline:3px solid var(--tag);outline-offset:2px}
+
+  .warn{
+    background:#FDF4E0;border-left:5px solid var(--tag);
+    padding:.875rem 1.125rem;font-size:.875rem;margin:1.5rem 0 0;
+  }
+  .note{font-size:.8125rem;color:var(--ink-soft);margin:1.5rem 0 0}
+  footer{margin-top:2rem;font-size:.8125rem;color:var(--ink-soft);text-align:center;line-height:2}
+  .msg{padding:1rem 1.125rem;border-left:5px solid var(--signal);background:#FBEBE8;font-size:.9375rem;margin-bottom:1.5rem}
+  #loading{text-align:center;color:var(--ink-soft);padding:4rem 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p id="loading">チケットを確認しています…</p>
+  <div id="fatal" class="msg" hidden></div>
+
+  <article class="tag" id="tag" hidden>
+    <div class="tag__head">
+      <p class="tag__expo" id="expo"></p>
+      <h1 class="tag__title" id="offerTitle"></h1>
+    </div>
+    <p class="state" id="state"></p>
+    <div class="tag__body">
+      <p class="holder" id="holder"></p>
+      <dl class="rows">
+        <div class="row"><dt>有効期限</dt><dd id="expires"></dd></div>
+        <div class="row"><dt>発行日</dt><dd id="issued"></dd></div>
+        <div class="row" id="usedRow" hidden><dt>使用日</dt><dd id="usedAt"></dd></div>
+      </dl>
+      <div id="gifts"></div>
+      <p class="code"><span>チケット番号</span><strong id="code"></strong></p>
+    </div>
+    <div class="stamp" id="stamp" hidden>使用済み</div>
+  </article>
+
+
+  <section class="act" id="act" hidden>
+    <p class="lbl">ご希望の内容・ご相談事項</p>
+    <textarea id="note" placeholder="導入時期、対象の店舗数、聞いておきたいことなど。空欄でも申し込めます。"></textarea>
+    <button id="apply">このチケットを使って申し込む</button>
+    <p class="warn">チケットは1回のみ使用できます。この操作をすると使用済みになり、元に戻せません。</p>
+  </section>
+
+  <section class="act" id="confirm" hidden>
+    <p class="warn" style="margin-top:0">本当に申し込みますか。使用済みになると取り消せません。</p>
+    <button id="yes">申し込む</button>
+    <button id="no" class="ghost">戻る</button>
+  </section>
+
+  <section class="flow" id="flow">
+    <h2>ご相談の流れ</h2>
+    <ol id="steps"></ol>
+  </section>
+
+  <p class="note" id="spentNote" hidden>
+    このチケットは使用済みです。内容についてのご確認は、下記までチケット番号をお伝えください。
+  </p>
+
+  <footer id="foot"></footer>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const C = window.SAIL_CONFIG;
+const db = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+const token = new URLSearchParams(location.search).get('t');
+
+const $ = id => document.getElementById(id);
+const fmt = d => d ? new Date(d).toLocaleString('ja-JP',
+  {year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+const fmtDate = d => d ? new Date(d).toLocaleDateString('ja-JP',
+  {year:'numeric',month:'long',day:'numeric'}) : '';
+
+$('expo').textContent = C.EXPO_NAME + '　' + C.LEAD;
+$('offerTitle').textContent = C.OFFER_TITLE;
+$('expires').textContent = C.EXPIRES;
+
+$('foot').innerHTML = '';
+C.ORGS.forEach(o => {
+  const d = document.createElement('div');
+  d.textContent = [o.name, o.tel, o.mail].filter(Boolean).join('　');
+  $('foot').appendChild(d);
+});
+
+C.GIFTS.forEach(g => {
+  const box = document.createElement('div');
+  box.className = 'gift';
+  const mk = (cls, text) => {
+    const s = document.createElement('span'); s.className = cls; s.textContent = text; return s;
+  };
+  box.append(mk('g-tag', g.tag), mk('g-title', g.title), mk('g-note', g.note));
+  $('gifts').appendChild(box);
+});
+
+C.STEPS.forEach(st => {
+  const li = document.createElement('li');
+  const b = document.createElement('b'); b.textContent = st.title;
+  const sm = document.createElement('small'); sm.textContent = st.note;
+  li.append(b, sm);
+  $('steps').appendChild(li);
+});
+
+function fatal(text){
+  $('loading').hidden = true;
+  $('fatal').hidden = false;
+  $('fatal').textContent = text;
+}
+
+function render(t){
+  $('loading').hidden = true;
+  $('tag').hidden = false;
+  $('holder').innerHTML = '';
+  const strong = document.createTextNode(t.name + ' 様');
+  $('holder').appendChild(strong);
+  if (t.company){
+    const s = document.createElement('small'); s.textContent = t.company;
+    $('holder').appendChild(s);
+  }
+  $('issued').textContent = fmtDate(t.issued_at);
+  $('code').textContent = t.code;
+
+  if (t.status === 'used'){
+    $('state').className = 'state spent';
+    $('state').innerHTML = '<span class="dot"></span>使用済み';
+    $('stamp').hidden = false;
+    $('tag').classList.add('spent-tag');
+    $('usedRow').hidden = false;
+    $('usedAt').textContent = fmt(t.used_at);
+    $('spentNote').hidden = false;
+  } else if (t.status === 'void'){
+    $('state').className = 'state spent';
+    $('state').innerHTML = '<span class="dot"></span>無効';
+    $('spentNote').hidden = false;
+  } else {
+    $('state').className = 'state live';
+    $('state').innerHTML = '<span class="dot"></span>ご利用いただけます';
+    $('act').hidden = false;
+  }
+}
+
+(async () => {
+  if (!token) return fatal('チケットが読み取れません。お手元のメールに記載されたリンクからもう一度開いてください。');
+  const { data, error } = await db.rpc('get_ticket', { p_token: token });
+  if (error) return fatal('チケットを確認できませんでした。時間をおいてもう一度お試しください。' + error.message);
+  const t = Array.isArray(data) ? data[0] : data;
+  if (!t) return fatal('このチケットは見つかりませんでした。リンクが途中で切れている可能性があります。メール本文のリンク全体を開いてください。');
+  render(t);
+})();
+
+$('apply').addEventListener('click', () => { $('act').hidden = true; $('confirm').hidden = false; });
+$('no').addEventListener('click', () => { $('confirm').hidden = true; $('act').hidden = false; });
+
+$('yes').addEventListener('click', async () => {
+  const btn = $('yes');
+  btn.disabled = true; btn.textContent = '送信しています…';
+  const { data, error } = await db.rpc('redeem_ticket', {
+    p_token: token, p_note: $('note').value
+  });
+  btn.disabled = false; btn.textContent = '申し込む';
+
+  if (error){
+    alert('送信できませんでした。時間をおいてもう一度お試しください。\n' + error.message);
+    return;
+  }
+  const r = Array.isArray(data) ? data[0] : data;
+  $('confirm').hidden = true;
+
+  if (r.result === 'already_used'){
+    alert('このチケットは ' + fmt(r.used_at) + ' に使用済みです。');
+  } else if (r.result === 'ok'){
+    // 社内へ申込通知（届かなくても申込自体は成立しているので握りつぶす）
+    fetch(C.SUPABASE_URL + '/functions/v1/send-ticket-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': C.SUPABASE_ANON_KEY },
+      body: JSON.stringify({ token: token, kind: 'redeem' })
+    }).catch(() => {});
+
+    $('state').className = 'state spent';
+    $('state').innerHTML = '<span class="dot"></span>お申し込みを受け付けました';
+    $('stamp').hidden = false;
+    $('tag').classList.add('spent-tag');
+    $('usedRow').hidden = false;
+    $('usedAt').textContent = fmt(r.used_at);
+    $('spentNote').textContent =
+      'お申し込みを受け付けました。担当者より2営業日以内にご連絡します。';
+    $('spentNote').hidden = false;
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>

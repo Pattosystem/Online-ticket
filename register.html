@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>特典チケットのお申し込み｜セイルシステム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16232F; --ink-soft:#5D6E7B; --line:#C9CEC9;
+    --field:#F2F3F1; --paper:#FFFFFF;
+    --tag:#E8B33A; --signal:#C8321E; --live:#1C6E4A;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--field);color:var(--ink);
+    font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
+    line-height:1.75;-webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:32rem;margin:0 auto;padding:0 1.25rem 4rem}
+  header{background:var(--ink);color:#fff;margin:0 0 2rem;padding:2.5rem 0 2rem;position:relative}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--tag)}
+  header .wrap{padding-bottom:0}
+  .expo{font-size:.8125rem;color:#9FB2BF;margin:0 0 .5rem;letter-spacing:.04em}
+  h1{font-size:1.75rem;font-weight:900;margin:0;line-height:1.4}
+
+  .lede{font-size:.9375rem;margin:0 0 1.75rem}
+
+  fieldset{border:none;margin:0;padding:0}
+  legend{padding:0}
+  .lbl{display:block;font-size:.875rem;font-weight:700;margin-bottom:.4rem}
+  .req{color:var(--signal);font-size:.75rem;font-weight:500;margin-left:.4rem}
+  .opt{color:var(--ink-soft);font-size:.75rem;font-weight:400;margin-left:.4rem}
+  input[type=text],input[type=email],textarea{
+    width:100%;font:inherit;font-size:1rem;padding:.75rem .875rem;
+    border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:2px;
+  }
+  textarea{min-height:5rem;resize:vertical}
+  input:focus,textarea:focus{outline:3px solid var(--tag);outline-offset:1px;border-color:var(--ink)}
+  .hint{font-size:.8125rem;color:var(--ink-soft);margin:.35rem 0 0}
+  .fld{margin-bottom:1.25rem}
+
+  .divider{border-top:1px solid var(--line);margin:2rem 0 1.5rem}
+
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem}
+  .chip{position:relative}
+  .chip input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .chip span{
+    display:block;border:1px solid var(--line);background:var(--paper);
+    padding:.5rem .875rem;font-size:.875rem;border-radius:2px;cursor:pointer;
+  }
+  .chip input:checked + span{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700}
+  .chip input:focus-visible + span{outline:3px solid var(--tag);outline-offset:2px}
+  .chips.col{flex-direction:column}
+  .chips.col .chip span{border-left-width:4px}
+  .chips.col .chip input:checked + span{background:#FDF6E3;color:var(--ink);border-color:var(--tag)}
+
+  button{
+    width:100%;font:inherit;font-size:1.0625rem;font-weight:700;padding:1rem;
+    border:none;border-radius:2px;background:var(--ink);color:#fff;cursor:pointer;margin-top:1.5rem;
+  }
+  button:hover:not(:disabled){background:#0E1922}
+  button:disabled{opacity:.45;cursor:progress}
+  button:focus-visible{outline:3px solid var(--tag);outline-offset:2px}
+
+  .msg{padding:1rem 1.125rem;border-left:5px solid var(--signal);background:#FBEBE8;margin-bottom:1.5rem;font-size:.9375rem}
+  .done{text-align:center;padding:3rem 0}
+  .done .mark{
+    width:3.5rem;height:3.5rem;margin:0 auto 1.5rem;border-radius:50%;
+    background:var(--live);color:#fff;font-size:1.75rem;font-weight:700;display:grid;place-items:center;
+  }
+  .done h2{font-size:1.375rem;margin:0 0 1rem}
+  .done p{font-size:.9375rem;color:var(--ink-soft);margin:0 auto;max-width:24rem}
+  footer{margin-top:2.5rem;font-size:.8125rem;color:var(--ink-soft);text-align:center;line-height:2}
+  #loading{text-align:center;color:var(--ink-soft);padding:3rem 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p class="expo" id="expo"></p>
+    <h1>特典チケットのお申し込み</h1>
+  </div>
+</header>
+
+<div class="wrap">
+  <p id="loading">読み込んでいます…</p>
+
+  <main id="form" hidden>
+    <p class="lede">30秒ほどで終わります。内容を確認のうえ、後日チケットをメールでお送りします。</p>
+
+    <div id="err" class="msg" hidden></div>
+
+    <div class="fld">
+      <label class="lbl" for="name">お名前<span class="req">必須</span></label>
+      <input id="name" type="text" autocomplete="name" placeholder="整備 太郎">
+    </div>
+    <div class="fld">
+      <label class="lbl" for="company">工場名・会社名<span class="req">必須</span></label>
+      <input id="company" type="text" autocomplete="organization" placeholder="〇〇自動車株式会社">
+    </div>
+    <div class="fld">
+      <label class="lbl" for="email">メールアドレス<span class="req">必須</span></label>
+      <input id="email" type="email" autocomplete="email" inputmode="email" placeholder="taro@example.com">
+      <p class="hint">後日こちらにチケットをお送りします。パソコンからのメールを受信できるアドレスをお願いします。</p>
+    </div>
+
+    <div class="divider"></div>
+    <div id="questions"></div>
+
+    <button id="submit">送信する</button>
+  </main>
+
+  <div id="done" class="done" hidden>
+    <div class="mark">✓</div>
+    <h2>ありがとうございました</h2>
+    <p id="doneBody">内容を確認のうえ、後日ご入力のアドレス宛に特典チケットをお送りします。数日お待ちください。</p>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const C = window.SAIL_CONFIG;
+const db = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+let QUESTIONS = [];
+
+$('expo').textContent = C.EXPO_NAME + '　' + C.BOOTH;
+$('foot').innerHTML = '';
+C.ORGS.forEach(o => {
+  const d = document.createElement('div');
+  d.textContent = [o.name, o.tel, o.mail].filter(Boolean).join('　');
+  $('foot').appendChild(d);
+});
+
+function showError(text){
+  $('err').textContent = text;
+  $('err').hidden = false;
+  $('err').scrollIntoView({block:'center', behavior:'smooth'});
+}
+
+function renderQuestions(list){
+  const box = $('questions');
+  box.innerHTML = '';
+  list.forEach(q => {
+    const fs = document.createElement('fieldset');
+    fs.className = 'fld';
+
+    const lg = document.createElement('legend');
+    lg.className = 'lbl';
+    lg.textContent = q.label;
+    if (q.required){
+      const r = document.createElement('span'); r.className = 'req'; r.textContent = '必須';
+      lg.appendChild(r);
+    } else if (q.type === 'multi'){
+      const o = document.createElement('span'); o.className = 'opt'; o.textContent = '複数可';
+      lg.appendChild(o);
+    }
+    fs.appendChild(lg);
+
+    if (q.type === 'text'){
+      const ta = document.createElement('textarea');
+      ta.id = 'q_' + q.id;
+      ta.placeholder = q.placeholder || '';
+      fs.appendChild(ta);
+    } else {
+      const chips = document.createElement('div');
+      chips.className = 'chips' + (q.type === 'multi' ? ' col' : '');
+      (q.options || []).forEach((opt, i) => {
+        const lab = document.createElement('label');
+        lab.className = 'chip';
+        const inp = document.createElement('input');
+        inp.type = q.type === 'multi' ? 'checkbox' : 'radio';
+        inp.name = 'q_' + q.id;
+        inp.value = opt;
+        inp.id = 'q_' + q.id + '_' + i;
+        const sp = document.createElement('span');
+        sp.textContent = opt;
+        lab.append(inp, sp);
+        chips.appendChild(lab);
+      });
+      fs.appendChild(chips);
+    }
+    box.appendChild(fs);
+  });
+}
+
+function collectAnswers(){
+  const out = {};
+  for (const q of QUESTIONS){
+    if (q.type === 'text'){
+      const v = ($('q_' + q.id) || {}).value || '';
+      if (v.trim()) out[q.label] = v.trim();
+    } else {
+      const picked = [...document.querySelectorAll('input[name="q_' + q.id + '"]:checked')]
+        .map(el => el.value);
+      if (picked.length) out[q.label] = q.type === 'multi' ? picked : picked[0];
+    }
+  }
+  return out;
+}
+
+function missingRequired(){
+  for (const q of QUESTIONS){
+    if (!q.required) continue;
+    if (q.type === 'text'){
+      if (!(($('q_' + q.id) || {}).value || '').trim()) return q.label;
+    } else if (!document.querySelector('input[name="q_' + q.id + '"]:checked')){
+      return q.label;
+    }
+  }
+  return null;
+}
+
+(async () => {
+  const { data, error } = await db.from('app_settings').select('value').eq('key', 'questions').single();
+  QUESTIONS = (!error && Array.isArray(data?.value)) ? data.value : [];
+  renderQuestions(QUESTIONS);
+  $('loading').hidden = true;
+  $('form').hidden = false;
+})();
+
+$('submit').addEventListener('click', async () => {
+  $('err').hidden = true;
+  const name    = $('name').value.trim();
+  const company = $('company').value.trim();
+  const email   = $('email').value.trim();
+
+  if (!name)    return showError('お名前を入力してください。');
+  if (!company) return showError('工場名・会社名を入力してください。');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+    return showError('メールアドレスの形式をご確認ください。');
+  const miss = missingRequired();
+  if (miss) return showError('「' + miss + '」にご回答ください。');
+
+  const btn = $('submit');
+  btn.disabled = true; btn.textContent = '送信しています…';
+
+  const { data, error } = await db.rpc('submit_entry', {
+    p_name: name, p_company: company, p_email: email,
+    p_answers: collectAnswers(), p_campaign: C.CAMPAIGN
+  });
+
+  btn.disabled = false; btn.textContent = '送信する';
+
+  if (error){
+    return showError('送信できませんでした。' + error.message +
+      '　解決しない場合はブーススタッフにお声がけください。');
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  $('form').hidden = true;
+  $('done').hidden = false;
+  if (row && row.is_new === false){
+    $('doneBody').textContent =
+      'このアドレスは登録済みでした。ご回答は最新の内容に更新しています。後日あらためてチケットをお送りします。';
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>チケット管理｜セイルシステム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16232F; --ink-soft:#5D6E7B; --line:#C9CEC9;
+    --field:#F2F3F1; --paper:#FFFFFF;
+    --tag:#E8B33A; --signal:#C8321E; --live:#1C6E4A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--field);color:var(--ink);
+       font-family:"Zen Kaku Gothic New",system-ui,sans-serif;line-height:1.7}
+  .bar{background:var(--ink);color:#fff;padding:1rem 1.5rem;
+       display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .bar h1{font-size:1.0625rem;font-weight:700;margin:0}
+  .bar span{font-size:.8125rem;color:#9FB2BF}
+  .wrap{max-width:66rem;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+  .login{max-width:22rem;margin:5rem auto;background:var(--paper);border:1px solid var(--line);padding:2rem}
+  .login h2{margin:0 0 1.5rem;font-size:1.25rem}
+
+  label{display:block;margin-bottom:1rem}
+  .lbl{display:block;font-size:.8125rem;font-weight:700;margin-bottom:.35rem}
+  input,select,textarea{
+    width:100%;font:inherit;font-size:1rem;padding:.6rem .75rem;border-radius:2px;
+    border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  }
+  textarea{resize:vertical;line-height:1.7}
+  input:focus,select:focus,textarea:focus{outline:3px solid var(--tag);outline-offset:1px;border-color:var(--ink)}
+  button{font:inherit;font-size:.9375rem;font-weight:700;padding:.6rem 1.125rem;border:none;
+         border-radius:2px;background:var(--ink);color:#fff;cursor:pointer}
+  button.wide{width:100%;padding:.75rem}
+  button.ghost{background:none;color:var(--ink);border:1px solid var(--line);font-weight:500}
+  button.sm{font-size:.8125rem;padding:.35rem .7rem;font-weight:500}
+  button.danger{background:none;color:var(--signal);border:1px solid var(--line);font-weight:500}
+  button:hover:not(:disabled){background:#0E1922;color:#fff}
+  button.danger:hover{background:var(--signal);color:#fff;border-color:var(--signal)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button:focus-visible{outline:3px solid var(--tag);outline-offset:2px}
+
+  .stats{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:2rem;flex-wrap:wrap}
+  .stat{background:var(--paper);padding:1.125rem 1.5rem;flex:1 1 8rem}
+  .stat dt{font-size:.8125rem;color:var(--ink-soft);margin:0}
+  .stat dd{margin:.15rem 0 0;font-size:1.75rem;font-weight:900;font-family:"Roboto Mono",monospace}
+  .stat.wait dd{color:var(--tag)}
+  .stat.used dd{color:var(--signal)}
+  .stat.rate dd{color:var(--live)}
+
+  .panel{background:var(--paper);border:1px solid var(--line);padding:1.5rem;margin-bottom:1.5rem}
+  .panel > h2{margin:0 0 .35rem;font-size:1rem}
+  .panel p.sub{margin:0 0 1.25rem;font-size:.875rem;color:var(--ink-soft)}
+  .fold > h2{cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin:0}
+  .fold > h2 .mk{font-family:"Roboto Mono",monospace;color:var(--ink-soft);font-weight:400}
+  .fold .inner{margin-top:1.25rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}
+  @media (max-width:40rem){.grid2{grid-template-columns:1fr}}
+  #codeIn{font-family:"Roboto Mono",monospace;font-size:1.0625rem;letter-spacing:.05em;text-transform:uppercase}
+
+  .result{padding:.875rem 1.125rem;border-left:5px solid;font-size:.9375rem;margin-top:1.25rem}
+  .result.ok{border-color:var(--live);background:#E6F1EB}
+  .result.ng{border-color:var(--signal);background:#FBEBE8}
+
+  .tools{display:flex;gap:.75rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+  .tools input{flex:1 1 14rem;width:auto}
+  .tools select{flex:0 0 10rem;width:auto}
+
+  .card{background:var(--paper);border:1px solid var(--line);padding:1rem 1.25rem;margin-bottom:.75rem}
+  .card.sent{border-left:5px solid var(--live)}
+  .card.wait{border-left:5px solid var(--tag)}
+  .card.done{border-left:5px solid var(--signal)}
+  .chead{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap}
+  .who{font-size:1rem;font-weight:700;margin:0}
+  .who small{display:block;font-size:.8125rem;font-weight:400;color:var(--ink-soft)}
+  .meta{font-family:"Roboto Mono",monospace;font-size:.8125rem;color:var(--ink-soft);text-align:right}
+  .pill{display:inline-block;font-size:.75rem;font-weight:700;padding:.1rem .55rem;border-radius:2px;white-space:nowrap}
+  .pill.wait{background:#FDF4E0;color:#8A6A12}
+  .pill.sent{background:#E6F1EB;color:var(--live)}
+  .pill.done{background:#FBEBE8;color:var(--signal)}
+  .ans{margin:.875rem 0 0;padding:.75rem 0 0;border-top:1px solid var(--field);font-size:.875rem}
+  .ans div{display:flex;gap:.75rem;padding:.2rem 0}
+  .ans dt{flex:0 0 9rem;color:var(--ink-soft)}
+  .ans dd{margin:0;flex:1}
+  .acts{display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap}
+  .empty{padding:3rem 1rem;text-align:center;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line)}
+
+  .qrow{border:1px solid var(--line);padding:1rem;margin-bottom:.75rem;background:var(--field)}
+  .qrow .grid2{margin-bottom:.5rem}
+  .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+  .qhead b{font-size:.8125rem;color:var(--ink-soft);font-family:"Roboto Mono",monospace}
+  .toast{position:sticky;bottom:1rem;margin-top:1rem}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login">
+  <h2>チケット管理</h2>
+  <label><span class="lbl">メールアドレス</span><input id="lgEmail" type="email" autocomplete="username"></label>
+  <label><span class="lbl">パスワード</span><input id="lgPass" type="password" autocomplete="current-password"></label>
+  <button class="wide" id="lgBtn">ログイン</button>
+  <div id="lgErr" class="result ng" hidden></div>
+</div>
+
+<div id="app" hidden>
+  <div class="bar">
+    <h1>チケット管理　<span id="campaign"></span></h1>
+    <div><span id="who"></span> <button class="ghost sm" id="logout" style="margin-left:.75rem">ログアウト</button></div>
+  </div>
+
+  <div class="wrap">
+    <dl class="stats">
+      <div class="stat"><dt>登録</dt><dd id="sAll">0</dd></div>
+      <div class="stat wait"><dt>未送信</dt><dd id="sWait">0</dd></div>
+      <div class="stat"><dt>送信済み</dt><dd id="sSent">0</dd></div>
+      <div class="stat used"><dt>申込あり</dt><dd id="sUsed">0</dd></div>
+      <div class="stat rate"><dt>申込率</dt><dd id="sRate">0%</dd></div>
+    </dl>
+
+    <section class="panel fold">
+      <h2 id="qToggle">設問の編集 <span class="mk">＋</span></h2>
+      <div class="inner" id="qInner" hidden>
+        <p class="sub">ブースのフォームに出る設問です。保存するとすぐ反映されます。展示会が始まってからでも変えられます。</p>
+        <div id="qList"></div>
+        <div class="acts">
+          <button class="ghost" id="qAdd">設問を追加</button>
+          <button id="qSave">保存する</button>
+        </div>
+        <div id="qResult" hidden></div>
+
+        <h2 style="margin:2rem 0 .35rem;font-size:1rem">メール文面</h2>
+        <p class="sub">お客様に送る文面です。{name}{company}{code}{link}{expo} の部分が自動で置き換わります。</p>
+        <label><span class="lbl">件名</span><input id="mSubject"></label>
+        <label><span class="lbl">本文</span><textarea id="mBody" rows="14"></textarea></label>
+        <button id="mSave">文面を保存する</button>
+        <div id="mResult" hidden></div>
+      </div>
+    </section>
+
+    <section class="panel fold">
+      <h2 id="rToggle">番号でもぎる <span class="mk">＋</span></h2>
+      <div class="inner" id="rInner" hidden>
+        <p class="sub">電話やメールで申し込みが入ったとき、チケット番号を聞いて入力してください。</p>
+        <div class="grid2">
+          <label><span class="lbl">チケット番号</span><input id="codeIn" placeholder="SAIL-XXXX-XXXX" autocomplete="off"></label>
+          <label><span class="lbl">担当者名</span><input id="staffIn" autocomplete="off"></label>
+        </div>
+        <label><span class="lbl">申込内容・備考</span><textarea id="noteIn" rows="2"></textarea></label>
+        <button id="redeemBtn">使用済みにする</button>
+        <div id="redeemResult" hidden></div>
+      </div>
+    </section>
+
+    <div class="tools">
+      <input id="q" placeholder="名前・会社名・メール・番号で絞り込み" autocomplete="off">
+      <select id="filter">
+        <option value="all">すべて</option>
+        <option value="wait">未送信のみ</option>
+        <option value="sent">送信済み・申込待ち</option>
+        <option value="done">申込ありのみ</option>
+      </select>
+      <button class="ghost" id="reload">再読み込み</button>
+      <button class="ghost" id="csv">CSVで書き出す</button>
+    </div>
+
+    <div id="list"></div>
+    <div id="empty" class="empty" hidden>該当する登録がありません。</div>
+    <div id="toast" class="toast result ok" hidden></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const C = window.SAIL_CONFIG;
+const db = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+let rows = [], questions = [], mail = { subject:'', body:'' };
+
+const fmt = d => d ? new Date(d).toLocaleString('ja-JP',
+  {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+
+$('campaign').textContent = C.CAMPAIGN;
+
+function toast(text, ok){
+  const t = $('toast');
+  t.className = 'toast result ' + (ok === false ? 'ng' : 'ok');
+  t.textContent = text; t.hidden = false;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { t.hidden = true; }, 4000);
+}
+
+function fold(btnId, innerId){
+  $(btnId).addEventListener('click', () => {
+    const inner = $(innerId);
+    inner.hidden = !inner.hidden;
+    $(btnId).querySelector('.mk').textContent = inner.hidden ? '＋' : '−';
+  });
+}
+fold('qToggle','qInner');
+fold('rToggle','rInner');
+
+// ---- ログイン ----
+$('lgBtn').addEventListener('click', async () => {
+  $('lgErr').hidden = true;
+  const { error } = await db.auth.signInWithPassword({
+    email: $('lgEmail').value.trim(), password: $('lgPass').value
+  });
+  if (error){
+    $('lgErr').hidden = false;
+    $('lgErr').textContent = 'ログインできません。メールアドレスとパスワードをご確認ください。';
+    return;
+  }
+  start();
+});
+$('lgPass').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgBtn').click(); });
+$('logout').addEventListener('click', async () => { await db.auth.signOut(); location.reload(); });
+
+async function start(){
+  const { data:{ user } } = await db.auth.getUser();
+  if (!user) return;
+  $('loginView').hidden = true;
+  $('app').hidden = false;
+  $('who').textContent = user.email;
+  if (!$('staffIn').value) $('staffIn').value = user.email.split('@')[0];
+  await Promise.all([loadSettings(), load()]);
+}
+
+// ---- 設定 ----
+async function loadSettings(){
+  const { data } = await db.from('app_settings').select('key,value').in('key', ['questions','mail_template']);
+  (data || []).forEach(r => {
+    if (r.key === 'questions' && Array.isArray(r.value)) questions = r.value;
+    if (r.key === 'mail_template' && r.value) mail = r.value;
+  });
+  drawQuestions();
+  $('mSubject').value = mail.subject || '';
+  $('mBody').value = mail.body || '';
+}
+
+function drawQuestions(){
+  $('qList').innerHTML = '';
+  questions.forEach((q, i) => {
+    const box = document.createElement('div');
+    box.className = 'qrow';
+
+    const head = document.createElement('div');
+    head.className = 'qhead';
+    const b = document.createElement('b'); b.textContent = '設問 ' + (i + 1);
+    const del = document.createElement('button');
+    del.className = 'danger sm'; del.textContent = '削除';
+    del.addEventListener('click', () => { questions.splice(i, 1); drawQuestions(); });
+    head.append(b, del);
+    box.appendChild(head);
+
+    const g = document.createElement('div');
+    g.className = 'grid2';
+
+    const l1 = document.createElement('label');
+    l1.innerHTML = '<span class="lbl">質問文</span>';
+    const inp = document.createElement('input');
+    inp.value = q.label || '';
+    inp.addEventListener('input', () => { q.label = inp.value; });
+    l1.appendChild(inp);
+
+    const l2 = document.createElement('label');
+    l2.innerHTML = '<span class="lbl">回答の形式</span>';
+    const sel = document.createElement('select');
+    [['single','1つ選ぶ'],['multi','複数選べる'],['text','自由記入']].forEach(([v, t]) => {
+      const o = document.createElement('option'); o.value = v; o.textContent = t;
+      if ((q.type || 'single') === v) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', () => { q.type = sel.value; drawQuestions(); });
+    l2.appendChild(sel);
+    g.append(l1, l2);
+    box.appendChild(g);
+
+    if (q.type !== 'text'){
+      const l3 = document.createElement('label');
+      l3.innerHTML = '<span class="lbl">選択肢（1行に1つ）</span>';
+      const ta = document.createElement('textarea');
+      ta.rows = Math.max(3, (q.options || []).length);
+      ta.value = (q.options || []).join('\n');
+      ta.addEventListener('input', () => {
+        q.options = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
+      });
+      l3.appendChild(ta);
+      box.appendChild(l3);
+    }
+
+    const l4 = document.createElement('label');
+    l4.style.display = 'flex'; l4.style.alignItems = 'center'; l4.style.gap = '.5rem';
+    l4.style.marginBottom = '0';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = !!q.required; cb.style.width = 'auto';
+    cb.addEventListener('change', () => { q.required = cb.checked; });
+    const sp = document.createElement('span');
+    sp.className = 'lbl'; sp.style.marginBottom = '0'; sp.textContent = '回答を必須にする';
+    l4.append(cb, sp);
+    box.appendChild(l4);
+
+    $('qList').appendChild(box);
+  });
+}
+
+$('qAdd').addEventListener('click', () => {
+  questions.push({ id: 'q' + Date.now().toString(36), label: '', type: 'single', options: [], required: false });
+  drawQuestions();
+});
+
+$('qSave').addEventListener('click', async () => {
+  const bad = questions.find(q => !(q.label || '').trim());
+  if (bad) return toast('質問文が空の設問があります。', false);
+  const bad2 = questions.find(q => q.type !== 'text' && !(q.options || []).length);
+  if (bad2) return toast('「' + bad2.label + '」に選択肢がありません。', false);
+  questions.forEach(q => { if (!q.id) q.id = 'q' + Date.now().toString(36); });
+
+  const { error } = await db.from('app_settings')
+    .upsert({ key:'questions', value: questions, updated_at: new Date().toISOString() });
+  toast(error ? '保存できませんでした。' + error.message : '設問を保存しました。', !error);
+});
+
+$('mSave').addEventListener('click', async () => {
+  mail = { subject: $('mSubject').value, body: $('mBody').value };
+  const { error } = await db.from('app_settings')
+    .upsert({ key:'mail_template', value: mail, updated_at: new Date().toISOString() });
+  toast(error ? '保存できませんでした。' + error.message : 'メール文面を保存しました。', !error);
+});
+
+// ---- 一覧 ----
+async function load(){
+  const { data, error } = await db.from('tickets')
+    .select('*').eq('campaign', C.CAMPAIGN).order('issued_at', { ascending:false });
+  if (error) return toast('読み込みできませんでした。' + error.message, false);
+  rows = data || [];
+  draw();
+}
+
+const stateOf = r => r.status === 'used' ? 'done' : (r.email_sent_at ? 'sent' : 'wait');
+const stateLabel = { wait:'未送信', sent:'送信済み', done:'申込あり' };
+
+function buildMail(r){
+  const link = C.TICKET_URL + '?t=' + r.token;
+  const rep = s => (s || '')
+    .replaceAll('{name}', r.name || '')
+    .replaceAll('{company}', r.company || '')
+    .replaceAll('{code}', r.code || '')
+    .replaceAll('{link}', link)
+    .replaceAll('{expo}', C.EXPO_NAME || '');
+  return { subject: rep(mail.subject), body: rep(mail.body), to: r.email, link };
+}
+
+function draw(){
+  const q = $('q').value.trim().toLowerCase().replace(/-/g,'');
+  const f = $('filter').value;
+  const list = rows.filter(r => {
+    if (f !== 'all' && stateOf(r) !== f) return false;
+    if (!q) return true;
+    return [r.name, r.company, r.email, r.code]
+      .map(v => (v||'').toLowerCase().replace(/-/g,'')).some(v => v.includes(q));
+  });
+
+  const used = rows.filter(r => r.status === 'used').length;
+  $('sAll').textContent  = rows.length;
+  $('sWait').textContent = rows.filter(r => stateOf(r) === 'wait').length;
+  $('sSent').textContent = rows.filter(r => stateOf(r) === 'sent').length;
+  $('sUsed').textContent = used;
+  $('sRate').textContent = rows.length ? Math.round(used / rows.length * 100) + '%' : '0%';
+
+  $('list').innerHTML = '';
+  list.forEach(r => {
+    const st = stateOf(r);
+    const card = document.createElement('div');
+    card.className = 'card ' + st;
+
+    const head = document.createElement('div');
+    head.className = 'chead';
+    const who = document.createElement('p');
+    who.className = 'who';
+    who.textContent = r.company || r.name;
+    const sm = document.createElement('small');
+    sm.textContent = (r.company ? r.name + ' 様　' : '') + r.email;
+    who.appendChild(sm);
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const pill = document.createElement('span');
+    pill.className = 'pill ' + st; pill.textContent = stateLabel[st];
+    const codeLine = document.createElement('div'); codeLine.textContent = r.code;
+    const dateLine = document.createElement('div');
+    dateLine.textContent = st === 'done' ? '申込 ' + fmt(r.used_at)
+                         : st === 'sent' ? '送信 ' + fmt(r.email_sent_at)
+                         : '登録 ' + fmt(r.issued_at);
+    meta.append(pill, codeLine, dateLine);
+    head.append(who, meta);
+    card.appendChild(head);
+
+    const ans = r.answers || {};
+    const keys = Object.keys(ans);
+    if (keys.length){
+      const dl = document.createElement('dl');
+      dl.className = 'ans';
+      keys.forEach(k => {
+        const row = document.createElement('div');
+        const dt = document.createElement('dt'); dt.textContent = k;
+        const dd = document.createElement('dd');
+        dd.textContent = Array.isArray(ans[k]) ? ans[k].join('、') : ans[k];
+        row.append(dt, dd); dl.appendChild(row);
+      });
+      card.appendChild(dl);
+    }
+    if (r.used_note){
+      const p = document.createElement('p');
+      p.className = 'ans'; p.style.whiteSpace = 'pre-wrap';
+      p.textContent = '申込時のご要望：' + r.used_note;
+      card.appendChild(p);
+    }
+
+    const acts = document.createElement('div');
+    acts.className = 'acts';
+
+    const copy = document.createElement('button');
+    copy.className = 'ghost sm'; copy.textContent = '文面をコピー';
+    copy.addEventListener('click', async () => {
+      const m = buildMail(r);
+      try {
+        await navigator.clipboard.writeText(m.subject + '\n\n' + m.body);
+        toast(r.name + ' 様あての文面をコピーしました。メールソフトに貼り付けてください。');
+      } catch (e) { toast('コピーできませんでした。', false); }
+    });
+
+    const open = document.createElement('button');
+    open.className = 'ghost sm'; open.textContent = 'メールを開く';
+    open.addEventListener('click', () => {
+      const m = buildMail(r);
+      location.href = 'mailto:' + encodeURIComponent(m.to) +
+        '?subject=' + encodeURIComponent(m.subject) +
+        '&body=' + encodeURIComponent(m.body);
+    });
+
+    const copyLink = document.createElement('button');
+    copyLink.className = 'ghost sm'; copyLink.textContent = 'リンクだけコピー';
+    copyLink.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(buildMail(r).link);
+        toast('チケットのリンクをコピーしました。');
+      } catch (e) { toast('コピーできませんでした。', false); }
+    });
+
+    const mark = document.createElement('button');
+    mark.className = st === 'wait' ? 'sm' : 'ghost sm';
+    mark.textContent = st === 'wait' ? '送信済みにする' : '未送信に戻す';
+    mark.disabled = st === 'done';
+    mark.addEventListener('click', async () => {
+      const { error } = await db.from('tickets')
+        .update({ email_sent_at: st === 'wait' ? new Date().toISOString() : null })
+        .eq('id', r.id);
+      if (error) return toast('更新できませんでした。' + error.message, false);
+      await load();
+    });
+
+    acts.append(copy, open, copyLink, mark);
+    card.appendChild(acts);
+    $('list').appendChild(card);
+  });
+
+  $('empty').hidden = list.length > 0;
+}
+
+$('q').addEventListener('input', draw);
+$('filter').addEventListener('change', draw);
+$('reload').addEventListener('click', load);
+
+// ---- 番号でもぎる ----
+$('redeemBtn').addEventListener('click', async () => {
+  const box = $('redeemResult');
+  const code = $('codeIn').value.trim();
+  if (!code){ box.hidden=false; box.className='result ng'; box.textContent='チケット番号を入力してください。'; return; }
+
+  const btn = $('redeemBtn');
+  btn.disabled = true; btn.textContent = '処理しています…';
+  const { data, error } = await db.rpc('redeem_by_code', {
+    p_code: code, p_staff: $('staffIn').value.trim(), p_note: $('noteIn').value
+  });
+  btn.disabled = false; btn.textContent = '使用済みにする';
+
+  box.hidden = false;
+  if (error){ box.className='result ng'; box.textContent='処理できませんでした。' + error.message; return; }
+  const r = Array.isArray(data) ? data[0] : data;
+
+  if (r.result === 'ok'){
+    box.className='result ok'; box.textContent = r.name + ' 様のチケットを使用済みにしました。';
+    $('codeIn').value = ''; $('noteIn').value = '';
+  } else if (r.result === 'already_used'){
+    box.className='result ng'; box.textContent = r.name + ' 様のチケットは ' + fmt(r.used_at) + ' に使用済みです。';
+  } else if (r.result === 'void'){
+    box.className='result ng'; box.textContent = 'このチケットは無効です。';
+  } else {
+    box.className='result ng'; box.textContent = 'この番号のチケットは見つかりません。桁の読み違いがないかご確認ください。';
+  }
+  await load();
+});
+$('codeIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('redeemBtn').click(); });
+
+// ---- CSV（差し込み送信用にリンク列つき） ----
+$('csv').addEventListener('click', () => {
+  const qLabels = [...new Set(rows.flatMap(r => Object.keys(r.answers || {})))];
+  const head = ['状態','番号','お名前','会社名','メール','チケットURL','件名','本文',
+                '登録日時','送信日時','申込日時','担当','申込時の要望', ...qLabels];
+  const esc = v => '"' + String(v ?? '').replace(/"/g,'""') + '"';
+  const body = rows.map(r => {
+    const m = buildMail(r);
+    const a = r.answers || {};
+    return [stateLabel[stateOf(r)], r.code, r.name, r.company, r.email, m.link, m.subject, m.body,
+            r.issued_at, r.email_sent_at, r.used_at, r.used_by, r.used_note,
+            ...qLabels.map(k => Array.isArray(a[k]) ? a[k].join('、') : (a[k] ?? ''))].map(esc).join(',');
+  });
+  const blob = new Blob(['\uFEFF' + [head.map(esc).join(','), ...body].join('\r\n')],
+    { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tickets-' + C.CAMPAIGN + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+start();
+</script>
+</body>
+</html>
